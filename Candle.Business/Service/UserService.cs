@@ -1,0 +1,114 @@
+﻿using Candle.Business.Abstract;
+using Candle.Common.Result;
+using Candle.DataAccess.Abstract;
+using Candle.DataAccess.Service;
+using Candle.InfraStructure.Persistence;
+using Candle.Model.DTOs.RequestDto.Login;
+using Candle.Model.DTOs.RequestDto.User;
+using Candle.Model.Entities;
+using Candle.Model.Enums;
+using LinqKit;
+using System;
+using System.Linq;
+
+namespace Candle.Business.Service
+{
+    public class UserService : IUserService
+    {
+        private readonly IUserDal userDal;
+        private readonly CandleDbContext dbContext;
+        public UserService()
+        {
+            dbContext = new CandleDbContext();
+            userDal = new UserDalService(dbContext);
+        }
+
+        public IDataResult<IQueryable<User>> GetAll()
+        {
+            var result = userDal.GetAll().Where(x => x.UserStatus == (short)UserStatusKey.Active);
+            return new SuccessDataResult<IQueryable<User>>(result);
+        }
+
+        public IDataResult<User> GetById(Guid Id)
+        {
+            var user = userDal.GetbyId(Id);
+
+            if (user == null || user.IsActive != (short)IsActiveKey.Active)
+            {
+                return new ErrorDataResult<User>(user);
+            }
+
+            return new SuccessDataResult<User>(user);
+        }
+
+        public IResult UpdateUser(UserRequestDto userRequest)
+        {
+            if (userRequest == null)
+            {
+                return new ErrorResult();
+            }
+
+            var predicate = PredicateBuilder.New<User>()
+                .Or(x => x.Email == userRequest.Email)
+                .Or(x => x.UserName == userRequest.UserName)
+                .Or(x => x.MobilePhone == userRequest.MobilePhone);
+
+            var user = userDal.Get(predicate);
+
+            if (user == null)
+            {
+                return new ErrorResult();
+            }
+
+            user.Name = userRequest.Name;
+            user.SurName = userRequest.SurName;
+            user.BirthDate = userRequest.BirthDate;
+            user.Email = userRequest.Email;
+            user.MobilePhone = userRequest.MobilePhone;
+            user.Password = userRequest.Password;
+            user.SecondaryEmail = userRequest.SecondaryEmail;
+            user.UserName = userRequest.UserName;
+
+            userDal.Update(user);
+            return new SuccessResult();
+        }
+
+        public IResult DeleteUser(UserLoginDto userRequest)
+        {
+            if (userRequest == null)
+            {
+                return new ErrorResult();
+            }
+
+            var predicate = PredicateBuilder.New<User>()
+                .Or(x => x.Email == userRequest.Email)
+                .Or(x => x.UserName == userRequest.UserName)
+                .Or(x => x.MobilePhone == userRequest.MobilePhone);
+
+            var user = userDal.Get(predicate);
+
+            if (user == null)
+            {
+                return new ErrorResult();
+            }
+
+            userDal.Delete(user);
+            return new SuccessResult();
+        }
+
+        public IResult ActivateUser(Guid Id)
+        {
+            var user = userDal.GetbyId(Id);
+
+            if (user == null || user.IsActive != (short)IsActiveKey.Active)
+            {
+                return new ErrorResult();
+            }
+
+            user.UserStatus = (short)UserStatusKey.Active;
+            userDal.Update(user);
+
+            return new SuccessResult();
+        }
+    }
+}
