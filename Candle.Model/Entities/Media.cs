@@ -17,7 +17,10 @@ namespace Candle.Model.Entities
 
         public short MediaType { get; set; }
 
+        public int Index { get; set; }
+
         public Guid PostId { get; set; }
+
         public virtual Post Post { get; set; }
     }
 }

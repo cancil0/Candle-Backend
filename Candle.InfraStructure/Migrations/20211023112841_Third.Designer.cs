@@ -3,15 +3,17 @@ using System;
 using Candle.InfraStructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Candle.InfraStructure.Migrations
 {
     [DbContext(typeof(CandleDbContext))]
-    partial class CandleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211023112841_Third")]
+    partial class Third
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,8 +72,10 @@ namespace Candle.InfraStructure.Migrations
 
             modelBuilder.Entity("Candle.Model.Entities.Like", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreateTime")
@@ -80,14 +84,14 @@ namespace Candle.InfraStructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
                     b.Property<short>("IsActive")
                         .HasColumnType("smallint");
 
                     b.Property<bool>("IsLiked")
                         .HasColumnType("boolean");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp without time zone");
@@ -95,22 +99,16 @@ namespace Candle.InfraStructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "PostId");
 
                     b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Like");
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Media", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Caption")
@@ -130,8 +128,8 @@ namespace Candle.InfraStructure.Migrations
                     b.Property<int>("FileSize")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Index")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
 
                     b.Property<short>("IsActive")
                         .HasColumnType("smallint");
@@ -139,26 +137,20 @@ namespace Candle.InfraStructure.Migrations
                     b.Property<short>("MediaType")
                         .HasColumnType("smallint");
 
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime?>("UpdateTime")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
+                    b.HasKey("PostId");
 
                     b.ToTable("Media");
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Message", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreateTime")
@@ -166,6 +158,9 @@ namespace Candle.InfraStructure.Migrations
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
 
                     b.Property<short>("IsActive")
                         .HasColumnType("smallint");
@@ -183,12 +178,7 @@ namespace Candle.InfraStructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
+                    b.HasKey("UserId");
 
                     b.ToTable("Message");
                 });
@@ -245,8 +235,7 @@ namespace Candle.InfraStructure.Migrations
 
             modelBuilder.Entity("Candle.Model.Entities.Tag", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreateTime")
@@ -255,11 +244,11 @@ namespace Candle.InfraStructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
                     b.Property<short>("IsActive")
                         .HasColumnType("smallint");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("TagName")
                         .IsRequired()
@@ -271,9 +260,7 @@ namespace Candle.InfraStructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
+                    b.HasKey("PostId");
 
                     b.ToTable("Tag");
                 });

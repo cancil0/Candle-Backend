@@ -31,19 +31,18 @@ namespace Candle.Application.JwtFeatures
         {
             var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.MobilePhone, user.MobilePhone)
+            new Claim("userName", user.UserName),
+            new Claim("userNameSurname", string.Format("{0} {1}", user.Name, user.SurName)),
+            new Claim("email", user.Email),
+            new Claim("id", user.Id.ToString()),
+            new Claim("expires", DateTime.Now.AddMinutes(10).ToString("O"))
         };
             return claims;
         }
         public JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken(
-                issuer: _jwtSettings.GetSection("validIssuer").Value,
-                audience: _jwtSettings.GetSection("validAudience").Value,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtSettings.GetSection("expiryInMinutes").Value)),
                 signingCredentials: signingCredentials);
             return tokenOptions;
         }

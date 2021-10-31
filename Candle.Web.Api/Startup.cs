@@ -26,7 +26,11 @@ namespace Candle.Web.Api
             services.IntegrateSwagger(Configuration);
             services.JwtSettings(Configuration);
             services.AddCors();
-            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<TagValidator>());
+            services.AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<TagValidator>())
+                .AddNewtonsoftJson(opt => {
+                    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,10 +1,12 @@
 ﻿using Candle.InfraStructure.Persistence;
 using Candle.InfraStructure.Persistence.EntityFramework;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
 using System.Reflection;
 using System.Text;
 

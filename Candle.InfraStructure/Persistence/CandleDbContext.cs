@@ -1,8 +1,10 @@
 ﻿using Candle.Model.Common;
 using Candle.Model.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Candle.InfraStructure.Persistence
 {
@@ -11,6 +13,7 @@ namespace Candle.InfraStructure.Persistence
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql("User ID=postgres;Password=123456;Server=localhost;Port=5432;Database=Candle;Integrated Security=true;Pooling=true;");
+            optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -18,20 +21,35 @@ namespace Candle.InfraStructure.Persistence
             modelBuilder.Entity<Post>()
                 .HasKey(f => f.UserId);
 
+            modelBuilder.Entity<Post>()
+                .HasKey(f => f.Id);
+
             modelBuilder.Entity<Comment>()
                 .HasKey(f => new { f.UserId, f.PostId });
 
             modelBuilder.Entity<Tag>()
                 .HasKey(f => f.PostId);
 
+            modelBuilder.Entity<Tag>()
+                .HasKey(f => f.Id);
+
             modelBuilder.Entity<Like>()
                 .HasKey(f => new { f.UserId, f.PostId });
+
+            modelBuilder.Entity<Like>()
+                .HasKey(f => f.Id);
 
             modelBuilder.Entity<Message>()
                 .HasKey(f => f.UserId);
 
+            modelBuilder.Entity<Message>()
+               .HasKey(f => f.Id);
+
             modelBuilder.Entity<Media>()
                 .HasKey(f => f.PostId);
+
+            modelBuilder.Entity<Media>()
+                .HasKey(f => f.Id);
 
             modelBuilder.Entity<PinForgotPassword>()
                 .HasKey(f => f.UserId);
@@ -97,6 +115,7 @@ namespace Candle.InfraStructure.Persistence
             {
                 if (entityEntry.State == EntityState.Added)
                 {
+                    ((BaseEntity)entityEntry.Entity).Id = Guid.NewGuid();
                     ((BaseEntity)entityEntry.Entity).CreateTime = DateTime.Now;
                     ((BaseEntity)entityEntry.Entity).IsActive = 1;
                 }
@@ -107,6 +126,35 @@ namespace Candle.InfraStructure.Persistence
             }
 
             return base.SaveChanges();
+        }
+
+        public override EntityEntry<TEntity> Update<TEntity>(TEntity entity) where TEntity : class
+        {
+            if (entity == null)
+            {
+                throw new Exception("");
+            }
+
+            var type = entity.GetType();
+            var et = this.Model.FindEntityType(type);
+            var key = et.FindPrimaryKey();
+
+            var keys = new object[key.Properties.Count];
+            var x = 0;
+            foreach (var keyName in key.Properties)
+            {
+                var keyProperty = type.GetProperty(keyName.Name, BindingFlags.Public | BindingFlags.Instance);
+                keys[x++] = keyProperty.GetValue(entity);
+            }
+
+            var originalEntity = Find(type, keys);
+            if (Entry(originalEntity).State == EntityState.Modified)
+            {
+                return base.Update(entity);
+            }
+
+            Entry(originalEntity).CurrentValues.SetValues(entity);
+            return Entry((TEntity)originalEntity);
         }
     }
 }
