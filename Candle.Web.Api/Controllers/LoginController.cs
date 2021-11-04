@@ -1,4 +1,5 @@
-﻿using Candle.Business.Abstract;
+﻿using Candle.Application.System;
+using Candle.Business.Abstract;
 using Candle.Business.Service;
 using Candle.Common.Result;
 using Candle.Model.DTOs.RequestDto.Login;
@@ -11,7 +12,8 @@ namespace Candle.Web.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LoginController : ControllerBase
+    [AllowAnonymous]
+    public class LoginController : BaseController
     {
         private readonly ILoginService _loginService;
         private readonly IConfiguration configuration;
@@ -22,7 +24,6 @@ namespace Candle.Web.Api.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [Route("Login")]
         public ActionResult<IDataResult<string>> Login([FromBody] UserLoginDto userLoginDto)
         {

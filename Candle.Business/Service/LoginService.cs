@@ -39,7 +39,7 @@ namespace Candle.Business.Service
 
             var user = userDal.Get(predicate);
 
-            if (user == null)
+            if (user == null || string.IsNullOrEmpty(userLoginDto.PrivateTokenKey))
             {
                 return new ErrorDataResult<string>();
             }
@@ -48,6 +48,10 @@ namespace Candle.Business.Service
             var claims = jwtHandler.GetClaims(user);
             var tokenOptions = jwtHandler.GenerateTokenOptions(signingCredentials, claims);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            var check = jwtHandler.IsTokenValid(userLoginDto.PrivateTokenKey, token);
+
+            if(!check)
+                return new ErrorDataResult<string>();
 
             return new SuccessDataResult<string>(token, "success");
         }

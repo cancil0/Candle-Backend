@@ -96,13 +96,23 @@ namespace Candle.Business.Service
             return new SuccessResult();
         }
 
-        public IResult ActivateUser(Guid Id)
+        public IResult ActivateUser(string userName)
         {
-            var user = userDal.GetbyId(Id);
+            var user = userDal.Get(x => x.UserName == userName);
+
+            if (user.UserStatus == (short)UserStatusKey.Active)
+            {
+                return new ErrorResult("User status already activated");
+            }
+
+            if (user.UserStatus == (short)UserStatusKey.NotActive)
+            {
+                return new ErrorResult("This user can not activated");
+            }
 
             if (user == null || user.IsActive != (short)IsActiveKey.Active)
             {
-                return new ErrorResult();
+                return new ErrorResult("User not found");
             }
 
             user.UserStatus = (short)UserStatusKey.Active;

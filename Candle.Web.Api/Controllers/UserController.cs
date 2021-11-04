@@ -1,4 +1,5 @@
-﻿using Candle.Business.Abstract;
+﻿using Candle.Application.System;
+using Candle.Business.Abstract;
 using Candle.Business.Service;
 using Candle.Common.Result;
 using Candle.Model.DTOs.RequestDto.Login;
@@ -11,11 +12,14 @@ using System.Linq;
 
 namespace Candle.Web.Api.Controllers
 {
+    
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    
-    public class UserController : ControllerBase
+    /// <summary>
+    /// User Services
+    /// </summary>
+    public class UserController : BaseController
     {
         IUserService _userService;
         public UserController()
@@ -77,13 +81,13 @@ namespace Candle.Web.Api.Controllers
         /// <summary>
         /// Activate User by id
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="userName"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("ActivateUser/{id}")]
-        public ActionResult<IResult> ActivateUser([FromRoute] Guid id)
+        [Route("ActivateUser")]
+        public ActionResult<IResult> ActivateUser([FromQuery] string userName)
         {
-            var activateUser = _userService.ActivateUser(id);
+            var activateUser = _userService.ActivateUser(userName);
             return Ok(activateUser);
         }
     }

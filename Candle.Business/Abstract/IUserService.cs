@@ -17,6 +17,6 @@ namespace Candle.Business.Abstract
 
         IResult DeleteUser(UserLoginDto user);
 
-        IResult ActivateUser(Guid Id);
+        IResult ActivateUser(string userName);
     }
 }

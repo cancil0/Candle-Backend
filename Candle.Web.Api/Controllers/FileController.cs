@@ -1,4 +1,5 @@
-﻿using Candle.Business.Abstract;
+﻿using Candle.Application.System;
+using Candle.Business.Abstract;
 using Candle.Business.Service;
 using Candle.Common.Result;
 using Candle.Model.DTOs.ResponseDto.FileResponseDto;
@@ -10,7 +11,7 @@ namespace Candle.Web.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FileController : ControllerBase
+    public class FileController : BaseController
     {
         private readonly IFileService _fileService;
         public FileController()

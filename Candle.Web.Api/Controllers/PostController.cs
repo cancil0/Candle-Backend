@@ -1,4 +1,5 @@
-﻿using Candle.Business.Abstract;
+﻿using Candle.Application.System;
+using Candle.Business.Abstract;
 using Candle.Business.Service;
 using Candle.Common.Result;
 using Candle.Model.DTOs.RequestDto.Post;
@@ -12,7 +13,7 @@ namespace Candle.Web.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PostController : ControllerBase
+    public class PostController : BaseController
     {
         IPostService _postService;
         public PostController()
