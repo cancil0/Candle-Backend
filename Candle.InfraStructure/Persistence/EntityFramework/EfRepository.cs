@@ -43,7 +43,7 @@ namespace Candle.InfraStructure.Persistence.EntityFramework
 
         public T Get(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
         {
-            var query = Entities.Where(expression).Where(x => x.IsActive == 1);
+            var query = Entities.Where(expression);
             return includes.Aggregate(query, (currrent, includeProperty) => currrent.Include(includeProperty)).FirstOrDefault();
         }
 

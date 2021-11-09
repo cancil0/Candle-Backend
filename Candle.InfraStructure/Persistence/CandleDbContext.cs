@@ -18,6 +18,9 @@ namespace Candle.InfraStructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>()
+                .HasKey(f => f.Id);
+
             modelBuilder.Entity<Post>()
                 .HasKey(f => f.UserId);
 
@@ -53,6 +56,22 @@ namespace Candle.InfraStructure.Persistence
 
             modelBuilder.Entity<PinForgotPassword>()
                 .HasKey(f => f.UserId);
+
+            modelBuilder.Entity<Follower>()
+                .HasKey(f => f.Id);
+
+            modelBuilder.Entity<Follower>()
+                .HasIndex(f => new { f.UserId, f.FollowerId }).IsUnique();
+
+            modelBuilder.Entity<Follower>()
+                .HasOne(sc => sc.UserFollower)
+                .WithMany(x => x.Followers)
+                .HasForeignKey(x => x.FollowerId);
+
+            modelBuilder.Entity<Follower>()
+                .HasOne(sc => sc.User)
+                .WithMany(x => x.Users)
+                .HasForeignKey(x => x.UserId);
 
             modelBuilder.Entity<Post>()
                .HasOne(f => f.User)

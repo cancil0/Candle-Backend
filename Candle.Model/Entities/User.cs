@@ -34,5 +34,8 @@ namespace Candle.Model.Entities
         public virtual ICollection<Post> Posts { get; set; }
 
         public virtual ICollection<Message> Messages { get; set; }
+
+        public IList<Follower> Users { get; set; }
+        public IList<Follower> Followers { get; set; }
     }
 }

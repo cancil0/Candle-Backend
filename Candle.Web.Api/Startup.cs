@@ -40,13 +40,12 @@ namespace Candle.Web.Api
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
+            
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
             app.ConfigSwagger();
-
+            app.UseHttpsRedirection();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

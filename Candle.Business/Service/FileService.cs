@@ -1,25 +1,19 @@
 ﻿using Candle.Business.Abstract;
 using Candle.Common.Result;
-using Candle.DataAccess.Abstract;
-using Candle.DataAccess.Service;
-using Candle.InfraStructure.Persistence;
 using Candle.Model.DTOs.ResponseDto.FileResponseDto;
 using Candle.Model.Enums;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Candle.Business.Service
 {
     public class FileService : IFileService
     {
-        private readonly IMediaDal mediaDal;
-        private readonly CandleDbContext dbContext;
+        private readonly IMediaService mediaService;
         public FileService()
         {
-            dbContext = new CandleDbContext();
-            mediaDal = new MediaDalService(dbContext);
+            mediaService = new MediaService();
         }
 
         public IDataResult<List<UploadFileResponseDto>> UploadFile(List<IFormFile> files, string userName)
@@ -31,7 +25,7 @@ namespace Candle.Business.Service
                 return new ErrorDataResult<List<UploadFileResponseDto>>(uploadFileResponse);
             }
 
-            int index = mediaDal.GetMany(x => x.Post.User.UserName == userName).Max(x => x.Index);
+            int index = mediaService.GetMediaMaxIndex(userName) > 0 ? mediaService.GetMediaMaxIndex(userName) : 0;
             index++;
             string fileExtention = string.Empty;
             string fileName = string.Empty;

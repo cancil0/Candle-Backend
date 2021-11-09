@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Candle.DataAccess\Candle.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Validation\DtoValidation\ResponseDtoValidation\" />
+  </ItemGroup>
+
 </Project>

@@ -7,6 +7,7 @@ using Candle.Model.DTOs.ResponseDto.PostResponseDto;
 using Candle.Model.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Candle.Web.Api.Controllers
@@ -22,58 +23,56 @@ namespace Candle.Web.Api.Controllers
         }
 
         /// <summary>
-        /// Herhangi bir post açılmak istendiği zaman bu method çağrılacak
+        /// Get Post
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("GetPost/{id}")]
-        public ActionResult<IDataResult<Post>> Get([FromRoute] Guid id)
+        public ActionResult<IDataResult<GetPostResponseDto>> Get([FromRoute] Guid id)
         {
             var getPost = _postService.GetById(id);
             return Ok(getPost);
         }
 
         /// <summary>
-        /// Profile girildiği zaman bu method çağrılacak
+        /// Get Spesific User's Post
         /// </summary>
         /// <returns></returns>
         [HttpPost]
         [Route("GetByUserName")]
-        public ActionResult<IQueryable<GetPostResponseDto>> GetByUserName(GetPostByUserNameDto getPostByUserNameDto)
+        public ActionResult<IQueryable<GetPostResponseDto>> GetByUserName([FromBody] GetPostByUserNameDto getPostByUserNameDto)
         {
             var getPost = _postService.GetByUserName(getPostByUserNameDto);
             return Ok(getPost);
         }
 
         /// <summary>
-        /// Ana sayfada postları göstermek için bu method çağrılacak
+        /// Get Main Page Posts
         /// </summary>
-        /// <param name="userName"></param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("GetMainPost/{userName}")]
-        public ActionResult<IDataResult<IQueryable<GetPostResponseDto>>> GetMainPost([FromRoute] string userName)
+        [HttpPost]
+        [Route("GetMainPost")]
+        public ActionResult<IDataResult<List<GetPostResponseDto>>> GetMainPost([FromBody] GetPostByUserNameDto getPostByUserNameDto)
         {
-            var getPosts = _postService.GetMainPost(userName);
+            var getPosts = _postService.GetMainPost(getPostByUserNameDto);
             return Ok(getPosts);
         }
 
         /// <summary>
-        /// Ana sayfada postları göstermek için bu method çağrılacak
+        /// Get Discovery Page Posts
         /// </summary>
-        /// <param name="userName"></param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("GetDiscoveryPost/{userName}")]
-        public ActionResult<IDataResult<IQueryable<GetPostResponseDto>>> GetDiscoveryPost([FromRoute] string userName)
+        [HttpPost]
+        [Route("GetDiscoveryPost")]
+        public ActionResult<IDataResult<IQueryable<GetPostResponseDto>>> GetDiscoveryPost([FromBody] GetPostByUserNameDto getPostByUserNameDto)
         {
-            var getPosts = _postService.GetDiscoveryPost(userName);
+            var getPosts = _postService.GetDiscoveryPost(getPostByUserNameDto);
             return Ok(getPosts);
         }
 
         /// <summary>
-        /// Post eklemek için çağrılacak
+        /// Add Post
         /// </summary>
         /// <param name="addPostDto"></param>
         /// <returns></returns>
@@ -83,6 +82,19 @@ namespace Candle.Web.Api.Controllers
         {
             var addPost = _postService.AddPost(addPostDto);
             return Ok(addPost);
+        }
+
+        /// <summary>
+        /// Delete Post
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("DeletePost/{id}")]
+        public ActionResult<IResult> DeletePost([FromQuery] Guid id)
+        {
+            var deletedPost = _postService.DeletePost(id);
+            return Ok(deletedPost);
         }
     }
 }
