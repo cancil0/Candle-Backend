@@ -11,20 +11,21 @@ namespace Candle.Business.Service
     public class FileService : IFileService
     {
         private readonly IMediaService mediaService;
+        private readonly IUserService userService;
         public FileService()
         {
             mediaService = new MediaService();
+            userService = new UserService();
         }
 
         public IDataResult<List<UploadFileResponseDto>> UploadFile(List<IFormFile> files, string userName)
         {
-            List<UploadFileResponseDto> uploadFileResponse = new();
-
             if (files.Count == 0)
             {
-                return new ErrorDataResult<List<UploadFileResponseDto>>(uploadFileResponse);
+                return new ErrorDataResult<List<UploadFileResponseDto>>();
             }
 
+            List<UploadFileResponseDto> uploadFileResponse = new();
             int index = mediaService.GetMediaMaxIndex(userName) > 0 ? mediaService.GetMediaMaxIndex(userName) : 0;
             index++;
             string fileExtention = string.Empty;
@@ -81,6 +82,47 @@ namespace Candle.Business.Service
             }
 
             return new SuccessDataResult<List<UploadFileResponseDto>>(uploadFileResponse);
+        }
+
+        public Common.Result.IResult UploadProfilePhoto(IFormFile file, string userName)
+        {
+            if (string.IsNullOrEmpty(file.FileName))
+            {
+                return new ErrorResult();
+            }
+
+            string fileExtention = string.Empty;
+            
+            var filePath = string.Format("C:\\Projeler\\Candle\\Candle-Frontend\\src\\assets\\userMedias\\{0}", userName);
+
+            if (!File.Exists(filePath))
+            {
+                Directory.CreateDirectory(filePath);
+            }
+
+            switch (file.ContentType)
+            {
+                case "image/jpeg":
+                    fileExtention = ".jpeg";
+                    break;
+
+                case "image/png":
+                    fileExtention = ".png";
+                    break;
+
+                case "image/jpg":
+                    fileExtention = ".jpg";
+                    break;
+
+                default:
+                    break;
+            }
+            var filePathFrontend = string.Format("../../../../assets/userMedias/{0}/{0}-profilephoto{1}", userName, fileExtention);
+            string fileName = string.Format("{0}-profilephoto{1}", userName, fileExtention);
+            using var stream = new FileStream(Path.Combine(filePath, fileName), FileMode.Create);
+            file.CopyTo(stream);
+            userService.UpdateProfilePhotoPath(userName, filePathFrontend);
+            return new SuccessResult();
         }
     }
 }

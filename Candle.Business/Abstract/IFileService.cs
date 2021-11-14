@@ -8,5 +8,7 @@ namespace Candle.Business.Abstract
     public interface IFileService
     {
         IDataResult<List<UploadFileResponseDto>>  UploadFile(List<IFormFile> file, string userName);
+
+        Common.Result.IResult UploadProfilePhoto(IFormFile file, string userName);
     }
 }

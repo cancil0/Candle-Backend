@@ -66,6 +66,7 @@ namespace Candle.Business.Service
             user.Email = userRequest.Email;
             user.MobilePhone = userRequest.MobilePhone;
             user.Password = userRequest.Password;
+            user.Gender = userRequest.Gender;
             user.SecondaryEmail = userRequest.SecondaryEmail;
             user.UserName = userRequest.UserName;
 
@@ -119,6 +120,22 @@ namespace Candle.Business.Service
             userDal.Update(user);
 
             return new SuccessResult();
+        }
+
+        public string GetProfilePhotoPath(string userName) { 
+            
+            return userDal.Get(x => x.UserName == userName).ProfilePhotoPath; 
+        }
+
+        public void UpdateProfilePhotoPath(string userName, string path)
+        {
+            var user = userDal.Get(x => x.UserName == userName);
+
+            if(user.ProfilePhotoPath != path)
+            {
+                user.ProfilePhotoPath = path;
+                userDal.Update(user);
+            }
         }
     }
 }

@@ -26,5 +26,13 @@ namespace Candle.Web.Api.Controllers
             var uploadFile = _fileService.UploadFile(files, userName);
             return Ok(uploadFile);
         }
+
+        [HttpPost]
+        [Route("UploadProfilePhoto")]
+        public ActionResult<Common.Result.IResult> UploadProfilePhoto(IFormFile file, [FromQuery] string userName)
+        {
+            var uploadProfilePhoto = _fileService.UploadProfilePhoto(file, userName);
+            return Ok(uploadProfilePhoto);
+        }
     }
 }

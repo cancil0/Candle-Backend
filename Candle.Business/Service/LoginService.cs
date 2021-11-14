@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 
 namespace Candle.Business.Service
@@ -73,6 +74,7 @@ namespace Candle.Business.Service
                 SurName = userRequestDto.SurName,
                 Password = userRequestDto.Password,
                 UserName = userRequestDto.UserName,
+                Gender = userRequestDto.Gender,
                 UserStatus = (short)UserStatusKey.NeedConfirm,
             };
 
@@ -111,6 +113,17 @@ namespace Candle.Business.Service
 
             Random random = new();
             string randomNumber = random.Next(100000,999999).ToString();
+
+            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            File.Create(Path.Combine(docPath, user.UserName + " Pin.txt")).Close();
+            using StreamWriter outputFile = new(Path.Combine(docPath, user.UserName + " Pin.txt"), true);
+            outputFile.WriteLine("UserName:  " + user.UserName);
+            outputFile.WriteLine("Pin:  " + randomNumber);
+            outputFile.WriteLine("Date:  " + DateTime.Now.ToString("dd.MM.yyyy"));
+            outputFile.WriteLine("Time:  " + DateTime.Now.ToString("HH:mm"));
+            outputFile.WriteLine("You have 60 seconds to use this pin");
+            outputFile.WriteLine("Please do not share your pin with anybody");
+            
 
             PinForgotPassword pinForgotPassword = new()
             {

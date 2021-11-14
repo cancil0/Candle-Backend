@@ -8,23 +8,26 @@ namespace Candle.Business.Service
     {
         private readonly IPostService postService;
         private readonly IFollowerService followerService;
+        private readonly IUserService userService;
 
         public ProfileService()
         {
             postService = new PostService();
             followerService = new FollowerService();
+            userService = new UserService();
         }
 
-        public IDataResult<GetProfileCountDto>  GetProfileCount(string userName)
+        public IDataResult<GetProfileInfoDto>  GetProfileCount(string userName)
         {
-            GetProfileCountDto getProfileCount = new()
+            GetProfileInfoDto getProfileCount = new()
             {
                 Post = postService.GetPostCount(userName),
                 Follower = followerService.GetFollowerCount(userName),
                 Following = followerService.GetFollowingCount(userName),
+                ProfilePhotoPath = userService.GetProfilePhotoPath(userName)
             };
 
-            return new SuccessDataResult<GetProfileCountDto>(getProfileCount);
+            return new SuccessDataResult<GetProfileInfoDto>(getProfileCount);
         }
     }
 }

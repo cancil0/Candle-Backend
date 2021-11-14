@@ -5,6 +5,6 @@ namespace Candle.Business.Abstract
 {
     public interface IProfileService
     {
-        IDataResult<GetProfileCountDto> GetProfileCount(string userName);
+        IDataResult<GetProfileInfoDto> GetProfileCount(string userName);
     }
 }

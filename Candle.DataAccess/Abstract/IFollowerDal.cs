@@ -11,6 +11,8 @@ namespace Candle.DataAccess.Abstract
         IQueryable<User> GetFollowers(string userName);
         IQueryable<User> GetFollowing(string userName);
         IQueryable<User> GetNotFollowing(string userName);
+        IQueryable<Follower> GetFollowerList(string userName);
+        IQueryable<Follower> GetFollowingList(string userName);
         void Insert(Follower follower);
         void Delete(Follower follower);
     }

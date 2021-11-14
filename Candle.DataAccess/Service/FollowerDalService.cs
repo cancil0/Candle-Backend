@@ -38,6 +38,18 @@ namespace Candle.DataAccess.Service
             return followers;
         }
 
+        public IQueryable<Follower> GetFollowerList(string userName)
+        {
+            var followers = entities.Where(x => x.UserFollower.UserName == userName).Include(x => x.User);
+            return followers;
+        }
+
+        public IQueryable<Follower> GetFollowingList(string userName)
+        {
+            var followers = entities.Where(x => x.User.UserName == userName).Include(x => x.UserFollower);
+            return followers;
+        }
+
         public IQueryable<User> GetNotFollowing(string userName)
         {
             var followers = entities.Where(x => x.User.UserName == userName).Select(x => x.FollowerId).ToList();

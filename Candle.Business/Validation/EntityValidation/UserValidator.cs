@@ -13,6 +13,7 @@ namespace Candle.Business.EntityValidation.Validation
             RuleFor(x => x.SecondaryEmail).EmailAddress().WithMessage("Lütfen geçerli bir ikincil email adresi giriniz");
             RuleFor(x => x.MobilePhone).Matches("^[0-9]*$").Length(10).WithMessage("Telefon numarası 10 haneli olmak zorundadır");
             RuleFor(x => x.UserName).Length(6, 25).NotNull().NotEmpty().WithMessage("Kullanıcı adı en az altı hane içermelidir");
+            RuleFor(x => x.Gender).Length(1).NotNull().NotEmpty();
         }
     }
 }

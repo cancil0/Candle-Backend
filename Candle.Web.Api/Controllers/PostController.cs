@@ -91,7 +91,7 @@ namespace Candle.Web.Api.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("DeletePost/{id}")]
-        public ActionResult<IResult> DeletePost([FromQuery] Guid id)
+        public ActionResult<IResult> DeletePost([FromRoute] Guid id)
         {
             var deletedPost = _postService.DeletePost(id);
             return Ok(deletedPost);

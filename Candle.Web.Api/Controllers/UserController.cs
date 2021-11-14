@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Candle.Web.Api.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]

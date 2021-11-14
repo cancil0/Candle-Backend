@@ -4,8 +4,10 @@ using Candle.DataAccess.Abstract;
 using Candle.DataAccess.Service;
 using Candle.InfraStructure.Persistence;
 using Candle.Model.DTOs.RequestDto.Follower;
+using Candle.Model.DTOs.ResponseDto.FollowerResponseDto;
 using Candle.Model.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Candle.Business.Service
@@ -36,6 +38,37 @@ namespace Candle.Business.Service
         {
             var result = followerDal.GetFollowing(userName);
             return new SuccessDataResult<IQueryable<User>>(result);
+        }
+
+        public IDataResult<List<GetFollowerResponseDto>> GetFollowerList(string userName)
+        {
+            var result = followerDal.GetFollowerList(userName);
+            List<GetFollowerResponseDto> followerList = new();
+            foreach (var item in result)
+            {
+                followerList.Add(new GetFollowerResponseDto 
+                { 
+                    Id = item.Id,
+                    FollowerName = item.User.UserName
+                });
+            }
+
+            return new SuccessDataResult<List<GetFollowerResponseDto>>(followerList);
+        }
+
+        public IDataResult<List<GetFollowerResponseDto>> GetFollowingList(string userName)
+        {
+            var result = followerDal.GetFollowingList(userName);
+            List<GetFollowerResponseDto> followingList = new();
+            foreach (var item in result)
+            {
+                followingList.Add(new GetFollowerResponseDto
+                {
+                    Id = item.Id,
+                    FollowerName = item.UserFollower.UserName
+                });
+            }
+            return new SuccessDataResult<List<GetFollowerResponseDto>>(followingList);
         }
 
         public IDataResult<IQueryable<User>> GetNotFollowings(string userName)
@@ -69,6 +102,14 @@ namespace Candle.Business.Service
             var follower = GetFollower(followerRequestDto);
 
             followerDal.Delete(follower.Data);
+            return new SuccessResult();
+        }
+
+        public IResult StopFollowingById(Guid id)
+        {
+            var follower = followerDal.Get(x => x.Id == id);
+
+            followerDal.Delete(follower);
             return new SuccessResult();
         }
 

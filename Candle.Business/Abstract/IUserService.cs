@@ -18,5 +18,9 @@ namespace Candle.Business.Abstract
         IResult DeleteUser(UserLoginDto user);
 
         IResult ActivateUser(string userName);
+
+        string GetProfilePhotoPath(string userName);
+
+        void UpdateProfilePhotoPath(string userName, string path);
     }
 }

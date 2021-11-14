@@ -25,6 +25,10 @@ namespace Candle.Model.Entities
 
         public string Password { get; set; }
 
+        public string Gender { get; set; }
+
+        public string ProfilePhotoPath { get; set; }
+
         public PinForgotPassword PinForgotPassword { get; set; }
 
         public virtual ICollection<Comment> Comments { get; set; }

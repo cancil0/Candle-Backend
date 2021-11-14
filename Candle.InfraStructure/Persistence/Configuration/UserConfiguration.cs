@@ -18,6 +18,7 @@ namespace Candle.InfraStructure.Persistence.Configuration
             builder.Property(s => s.Password).IsRequired();
             builder.Property(s => s.MobilePhone).IsRequired().HasMaxLength(10);
             builder.HasIndex(s => s.MobilePhone).IsUnique();
+            builder.Property(s => s.Gender).IsRequired().HasMaxLength(1);
         }
     }
 }
