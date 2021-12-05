@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace Candle.InfraStructure.Migrations
 {
     [DbContext(typeof(CandleDbContext))]
@@ -15,9 +17,10 @@ namespace Candle.InfraStructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.11")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Candle.Model.Entities.Comment", b =>
                 {
@@ -65,7 +68,7 @@ namespace Candle.InfraStructure.Migrations
 
                     b.HasIndex("ParentCommentUserId", "ParentCommentPostId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Follower", b =>
@@ -87,7 +90,7 @@ namespace Candle.InfraStructure.Migrations
                     b.HasIndex("UserId", "FollowerId")
                         .IsUnique();
 
-                    b.ToTable("Follower");
+                    b.ToTable("Follower", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Like", b =>
@@ -126,7 +129,7 @@ namespace Candle.InfraStructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Like");
+                    b.ToTable("Like", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Media", b =>
@@ -174,7 +177,7 @@ namespace Candle.InfraStructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Media");
+                    b.ToTable("Media", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Message", b =>
@@ -212,7 +215,7 @@ namespace Candle.InfraStructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Message");
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.PinForgotPassword", b =>
@@ -227,7 +230,7 @@ namespace Candle.InfraStructure.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("PinForgotPassword");
+                    b.ToTable("PinForgotPassword", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Post", b =>
@@ -262,7 +265,7 @@ namespace Candle.InfraStructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Post");
+                    b.ToTable("Post", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Tag", b =>
@@ -297,7 +300,7 @@ namespace Candle.InfraStructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Tag");
+                    b.ToTable("Tag", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.User", b =>
@@ -374,7 +377,7 @@ namespace Candle.InfraStructure.Migrations
                     b.HasIndex("UserName")
                         .IsUnique();
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.Comment", b =>

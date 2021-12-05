@@ -14,6 +14,7 @@ namespace Candle.InfraStructure.Persistence
         {
             optionsBuilder.UseNpgsql("User ID=postgres;Password=123456;Server=localhost;Port=5432;Database=Candle;Integrated Security=true;Pooling=true;");
             optionsBuilder.EnableSensitiveDataLogging();
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -137,11 +138,14 @@ namespace Candle.InfraStructure.Persistence
                     ((BaseEntity)entityEntry.Entity).Id = Guid.NewGuid();
                     ((BaseEntity)entityEntry.Entity).CreateTime = DateTime.Now;
                     ((BaseEntity)entityEntry.Entity).IsActive = 1;
+                    ((BaseEntity)entityEntry.Entity).CreatedBy = Environment.MachineName;
                 }
 
                 if (entityEntry.State == EntityState.Modified)
+                {
                     ((BaseEntity)entityEntry.Entity).UpdateTime = DateTime.Now;
-                    
+                    ((BaseEntity)entityEntry.Entity).UpdatedBy = Environment.MachineName;
+                }  
             }
 
             return base.SaveChanges();

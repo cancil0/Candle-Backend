@@ -14,14 +14,13 @@ namespace Candle.Web.Api.Controllers
 {
 
     [Route("api/[controller]")]
-    [Authorize]
     [ApiController]
     /// <summary>
     /// User Services
     /// </summary>
     public class UserController : BaseController
     {
-        IUserService _userService;
+        private readonly IUserService _userService;
         public UserController()
         {
             _userService = new UserService();
@@ -79,11 +78,11 @@ namespace Candle.Web.Api.Controllers
         }
 
         /// <summary>
-        /// Activate User by id
+        /// Activate User by userName
         /// </summary>
-        /// <param name="userName"></param>
         /// <returns></returns>
         [HttpPut]
+        [AllowAnonymous]
         [Route("ActivateUser")]
         public ActionResult<IResult> ActivateUser([FromQuery] string userName)
         {

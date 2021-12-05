@@ -1,6 +1,7 @@
 ﻿using Candle.Common.Result;
 using Candle.Model.DTOs.RequestDto.Login;
 using Candle.Model.DTOs.RequestDto.User;
+using Candle.Model.DTOs.ResponseDto.PostResponseDto;
 using Candle.Model.Entities;
 using System;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace Candle.Business.Abstract
 
         IResult ActivateUser(string userName);
 
-        string GetProfilePhotoPath(string userName);
+        UserProfileInfoResponseDto GetUserProfileInfo(string userName);
 
         void UpdateProfilePhotoPath(string userName, string path);
     }

@@ -1,10 +1,12 @@
-﻿using Candle.Business.Abstract;
+﻿using Candle.Application.System;
+using Candle.Business.Abstract;
 using Candle.Common.Result;
 using Candle.DataAccess.Abstract;
 using Candle.DataAccess.Service;
 using Candle.InfraStructure.Persistence;
 using Candle.Model.DTOs.RequestDto.Login;
 using Candle.Model.DTOs.RequestDto.User;
+using Candle.Model.DTOs.ResponseDto.PostResponseDto;
 using Candle.Model.Entities;
 using Candle.Model.Enums;
 using LinqKit;
@@ -60,12 +62,14 @@ namespace Candle.Business.Service
                 return new ErrorResult();
             }
 
+            string encryptedPass = Encryption.EncryptString(Encryption.encryptionKey, userRequest.Password);
+
             user.Name = userRequest.Name;
             user.SurName = userRequest.SurName;
             user.BirthDate = userRequest.BirthDate;
             user.Email = userRequest.Email;
             user.MobilePhone = userRequest.MobilePhone;
-            user.Password = userRequest.Password;
+            user.Password = encryptedPass;
             user.Gender = userRequest.Gender;
             user.SecondaryEmail = userRequest.SecondaryEmail;
             user.UserName = userRequest.UserName;
@@ -101,6 +105,11 @@ namespace Candle.Business.Service
         {
             var user = userDal.Get(x => x.UserName == userName);
 
+            if (user == null || user.IsActive != (short)IsActiveKey.Active)
+            {
+                return new ErrorResult("User not found");
+            }
+
             if (user.UserStatus == (short)UserStatusKey.Active)
             {
                 return new ErrorResult("User status already activated");
@@ -111,20 +120,23 @@ namespace Candle.Business.Service
                 return new ErrorResult("This user can not activated");
             }
 
-            if (user == null || user.IsActive != (short)IsActiveKey.Active)
-            {
-                return new ErrorResult("User not found");
-            }
-
             user.UserStatus = (short)UserStatusKey.Active;
             userDal.Update(user);
 
             return new SuccessResult();
         }
 
-        public string GetProfilePhotoPath(string userName) { 
-            
-            return userDal.Get(x => x.UserName == userName).ProfilePhotoPath; 
+        public UserProfileInfoResponseDto GetUserProfileInfo(string userName) {
+
+            var user = userDal.Get(x => x.UserName == userName);
+
+            UserProfileInfoResponseDto userProfileInfo = new()
+            {
+                ProfilePhotoPath = user.ProfilePhotoPath,
+                UserNameSurname = string.Format("{0} {1}", user.Name, user.SurName)
+            };
+
+            return userProfileInfo;
         }
 
         public void UpdateProfilePhotoPath(string userName, string path)

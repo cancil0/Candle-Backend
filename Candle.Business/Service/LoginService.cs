@@ -1,4 +1,5 @@
 ﻿using Candle.Application.JwtFeatures;
+using Candle.Application.System;
 using Candle.Business.Abstract;
 using Candle.Common.Result;
 using Candle.DataAccess.Abstract;
@@ -13,46 +14,51 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
-using System.Linq;
 
 namespace Candle.Business.Service
 {
     public class LoginService : ILoginService
     {
         private readonly IUserDal userDal;
+        private readonly IPinDal pinDal;
         private readonly CandleDbContext dbContext;
         public LoginService()
         {
             dbContext = new CandleDbContext();
             userDal = new UserDalService(dbContext);
+            pinDal = new PinDalService(dbContext);
         }
 
         public IDataResult<string> Login(UserLoginDto userLoginDto, IConfiguration configuration)
         {
-            JwtHandler jwtHandler = new JwtHandler(configuration);
+            string encryptedPass =  Encryption.EncryptString(Encryption.encryptionKey, userLoginDto.Password);
+
             var predicate = PredicateBuilder.New<User>()
                 .Or(x => x.Email == userLoginDto.Email)
                 .Or(x => x.UserName == userLoginDto.UserName)
                 .Or(x => x.MobilePhone == userLoginDto.MobilePhone)
-                .And(x => x.Password == userLoginDto.Password)
-                .And(x => x.UserStatus == (short)UserStatusKey.Active);
+                .And(x => x.Password == encryptedPass);
 
             var user = userDal.Get(predicate);
 
             if (user == null || string.IsNullOrEmpty(userLoginDto.PrivateTokenKey))
-            {
                 return new ErrorDataResult<string>();
-            }
 
+            if(user.UserStatus == (short)UserStatusKey.NotActive)
+                return new ErrorDataResult<string>(null, "userisbanned");
+
+            JwtHandler jwtHandler = new(configuration);
             var signingCredentials = jwtHandler.GetSigningCredentials();
             var claims = jwtHandler.GetClaims(user);
             var tokenOptions = jwtHandler.GenerateTokenOptions(signingCredentials, claims);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-            var check = jwtHandler.IsTokenValid(userLoginDto.PrivateTokenKey, token);
+            var isTokenValid = jwtHandler.IsTokenValid(userLoginDto.PrivateTokenKey, token);
 
-            if(!check)
+            if (!isTokenValid)
                 return new ErrorDataResult<string>();
+
+            if (user.UserStatus == (short)UserStatusKey.NeedConfirm)
+                return new ErrorDataResult<string>(user.UserName, "needconfirm");
 
             return new SuccessDataResult<string>(token, "success");
         }
@@ -64,6 +70,8 @@ namespace Candle.Business.Service
                 return new ErrorResult();
             }
 
+            string encryptedPass = Encryption.EncryptString(Encryption.encryptionKey, userRequestDto.Password);
+
             User user = new()
             {
                 BirthDate = userRequestDto.BirthDate,
@@ -72,10 +80,12 @@ namespace Candle.Business.Service
                 MobilePhone = userRequestDto.MobilePhone,
                 Name = userRequestDto.Name,
                 SurName = userRequestDto.SurName,
-                Password = userRequestDto.Password,
+                Password = encryptedPass,
                 UserName = userRequestDto.UserName,
                 Gender = userRequestDto.Gender,
                 UserStatus = (short)UserStatusKey.NeedConfirm,
+                ProfilePhotoPath = userRequestDto.Gender.Equals("M") ? "../../../../assets/defaultProfilePhoto/img_avatar_man.png" 
+                                                                     : "../../../../assets/defaultProfilePhoto/img_avatar_woman.png"
             };
 
             userDal.Insert(user);
@@ -85,12 +95,9 @@ namespace Candle.Business.Service
 
         public IDataResult<string> GeneratePinForgotPassword(ForgotPasswordRequestDto forgotPassword)
         {
-            DbSet<PinForgotPassword> entity =  dbContext.Set<PinForgotPassword>();
             if (forgotPassword == null)
-            {
                 return new ErrorDataResult<string>();
-            }
-
+            
             var predicate = PredicateBuilder.New<User>()
                 .Or(x => x.Email == forgotPassword.Email)
                 .Or(x => x.UserName == forgotPassword.UserName)
@@ -99,65 +106,36 @@ namespace Candle.Business.Service
             var user = userDal.Get(predicate);
 
             if (user == null)
-            {
                 return new ErrorDataResult<string>();
-            }
-
-            PinForgotPassword lastPin = entity.SingleOrDefault(x => x.UserId == user.Id);
-
-            if (lastPin != null) 
-            {
-                entity.Remove(lastPin);
-                dbContext.SaveChanges();
-            }
 
             Random random = new();
-            string randomNumber = random.Next(100000,999999).ToString();
+            string randomNumber = random.Next(100000, 999999).ToString();
 
-            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            File.Create(Path.Combine(docPath, user.UserName + " Pin.txt")).Close();
-            using StreamWriter outputFile = new(Path.Combine(docPath, user.UserName + " Pin.txt"), true);
-            outputFile.WriteLine("UserName:  " + user.UserName);
-            outputFile.WriteLine("Pin:  " + randomNumber);
-            outputFile.WriteLine("Date:  " + DateTime.Now.ToString("dd.MM.yyyy"));
-            outputFile.WriteLine("Time:  " + DateTime.Now.ToString("HH:mm"));
-            outputFile.WriteLine("You have 60 seconds to use this pin");
-            outputFile.WriteLine("Please do not share your pin with anybody");
-            
-
-            PinForgotPassword pinForgotPassword = new()
-            {
-                UserId = user.Id,
-                Pin = randomNumber,
-            };
-
-            entity.Add(pinForgotPassword);
-            dbContext.SaveChanges();
+            pinDal.RemoveLastPin(user.Id);
+            pinDal.GeneratePinMessageFile(user, randomNumber);
+            pinDal.AddNewPin(new() { UserId = user.Id, Pin = randomNumber });
 
             return new SuccessDataResult<string>(user.UserName, "success");
         }
 
         public IResult EnterPinForgotPassword(EnterPinForgotPassRequestDto enterPinForgot)
         {
-            DbSet<PinForgotPassword> entity = dbContext.Set<PinForgotPassword>();
-
-            PinForgotPassword userPinRequest = (from a in entity
-                                   where a.User.UserName == enterPinForgot.UserName && 
-                                       a.Pin == enterPinForgot.Pin
-                                   select a).SingleOrDefault();
-
-            if(userPinRequest == null)
-            {
-                return new ErrorResult();
-            }
-
-            return new SuccessResult();
+            if(pinDal.IsPinCorrect(enterPinForgot))
+                return new SuccessResult();
+            
+            return new ErrorResult();
         }
 
         public IResult ChangePassword(ChangePasswordDto passwordDto)
         {
             var user = userDal.Get(x => x.UserName == passwordDto.UserName);
-            user.Password = passwordDto.Password;
+
+            if(user == null)
+                return new ErrorResult();
+
+            string encryptedPass = Encryption.EncryptString(Encryption.encryptionKey, passwordDto.Password);
+
+            user.Password = encryptedPass;
             userDal.Update(user);
 
             return new SuccessResult();

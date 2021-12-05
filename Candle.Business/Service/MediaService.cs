@@ -18,7 +18,14 @@ namespace Candle.Business.Service
 
         public int GetMediaMaxIndex(string userName)
         {
-            return mediaDal.GetMany(x => x.Post.User.UserName == userName).Max(x => x.Index);
+            var media = mediaDal.GetMany(x => x.Post.User.UserName == userName);
+            bool isIndex = media.Select(x => x.Index).Any();
+            if (isIndex)
+            {
+                return media.Max(x => x.Index);
+            }
+
+            return 0;
         }
     }
 }

@@ -17,14 +17,16 @@ namespace Candle.Business.Service
             userService = new UserService();
         }
 
-        public IDataResult<GetProfileInfoDto>  GetProfileCount(string userName)
+        public IDataResult<GetProfileInfoDto> GetProfileInfo(string userName)
         {
+            var userProfileInfo = userService.GetUserProfileInfo(userName);
             GetProfileInfoDto getProfileCount = new()
             {
                 Post = postService.GetPostCount(userName),
                 Follower = followerService.GetFollowerCount(userName),
                 Following = followerService.GetFollowingCount(userName),
-                ProfilePhotoPath = userService.GetProfilePhotoPath(userName)
+                ProfilePhotoPath = userProfileInfo.ProfilePhotoPath,
+                UserNameSurname = userProfileInfo.UserNameSurname
             };
 
             return new SuccessDataResult<GetProfileInfoDto>(getProfileCount);

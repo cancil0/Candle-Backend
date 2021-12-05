@@ -10,6 +10,7 @@ using Candle.Model.DTOs.ResponseDto.MediaResponseDto;
 using Candle.Model.DTOs.ResponseDto.PostResponseDto;
 using Candle.Model.DTOs.ResponseDto.TagResponseDto;
 using Candle.Model.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,7 @@ namespace Candle.Business.Service
                                                                     UserName = p.User.UserName,
                                                                     Content = p.Content,
                                                                     CreateTime = p.CreateTime,
+                                                                    ProfilePhotoPath = p.User.ProfilePhotoPath,
                                                                     Likes = p.Likes.Select(x => new LikePostResponseDto
                                                                     {
                                                                         UserName = x.User.UserName,
@@ -82,6 +84,7 @@ namespace Candle.Business.Service
                                                                     UserName = p.User.UserName,
                                                                     Content = p.Content,
                                                                     CreateTime = p.CreateTime,
+                                                                    ProfilePhotoPath = p.User.ProfilePhotoPath,
                                                                     Likes = p.Likes.Select(x => new LikePostResponseDto
                                                                     {
                                                                         UserName = x.User.UserName,
@@ -106,13 +109,16 @@ namespace Candle.Business.Service
 
         public IDataResult<GetPostResponseDto> GetById(Guid Id)
         {
-            var post = postDal.Get(x => x.Id == Id,
-                                     x => x.Medias,
-                                     x => x.Comments,
-                                     x => x.Likes,
-                                     x => x.Tags,
-                                     x => x.User);
-
+            var post = postDal.GetAll()
+                                .Include(x => x.Medias)
+                                .Include(x => x.Comments)
+                                .Include(x => x.Likes)
+                                .Include(x => x.Tags)
+                                .Include(x => x.User)
+                                .Include("Likes.User")
+                                .Include("Comments.User")
+                                .FirstOrDefault(x => x.Id == Id);
+            
             if(post == null)
                 return new ErrorDataResult<GetPostResponseDto>();
 
@@ -122,6 +128,7 @@ namespace Candle.Business.Service
                 UserName = post.User.UserName,
                 Content = post.Content,
                 CreateTime = post.CreateTime,
+                ProfilePhotoPath = post.User.ProfilePhotoPath,
                 Likes = post.Likes.Select(x => new LikePostResponseDto
                 {
                     UserName = x.User.UserName,
@@ -158,6 +165,7 @@ namespace Candle.Business.Service
                                                                                     UserName = p.User.UserName,
                                                                                     Content = p.Content,
                                                                                     CreateTime = p.CreateTime,
+                                                                                    ProfilePhotoPath = p.User.ProfilePhotoPath,
                                                                                     Likes = p.Likes.Select(x => new LikePostResponseDto
                                                                                     {
                                                                                         UserName = x.User.UserName,

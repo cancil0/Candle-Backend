@@ -34,8 +34,8 @@ namespace Candle.InfraStructure.Persistence.EntityFramework
             }
             catch (DbUpdateException exception)
             {
-                ErrorTextAndRollback(exception);
-                return -1;
+                string message = ErrorTextAndRollback(exception);
+                throw new Exception(message);
             }
         }
 

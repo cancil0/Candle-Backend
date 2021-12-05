@@ -18,7 +18,7 @@ namespace Candle.Web.Api.Controllers
     [AllowAnonymous]
     public class FollowerController : BaseController
     {
-        IFollowerService _followerService;
+        private readonly IFollowerService _followerService;
         public FollowerController()
         {
             _followerService = new FollowerService();

@@ -1,14 +1,18 @@
 ﻿using Candle.InfraStructure.Persistence;
 using Candle.InfraStructure.Persistence.EntityFramework;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Candle.Application.System
 {
@@ -19,7 +23,7 @@ namespace Candle.Application.System
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             return services;
         }
-        public static IServiceCollection AddCustomizedDataStore(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCustomizedDataStore(this IServiceCollection services)
         {
             services.AddScoped(provider => provider.GetService<CandleDbContext>());
             return services;
@@ -61,7 +65,7 @@ namespace Candle.Application.System
                                     Id = "Bearer"
                                 }
                             },
-                            new string[] {}
+                            Array.Empty<string>()
 
                     }
                 });
@@ -93,6 +97,22 @@ namespace Candle.Application.System
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("securityKey").Value))
                 };
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection Localization(this IServiceCollection services)
+        {
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.RequestCultureProviders.Insert(0, new CustomRequestCultureProvider(context =>
+                {
+                    var userLang = context.Request.Headers["Accept-Language"].ToString();
+                    var firstLang = userLang.Split('-').FirstOrDefault();
+                    var defaultLang = firstLang ?? "en";
+                    return Task.FromResult(new ProviderCultureResult(defaultLang, defaultLang));
+                }));
             });
 
             return services;

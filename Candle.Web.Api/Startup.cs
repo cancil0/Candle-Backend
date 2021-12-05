@@ -22,8 +22,9 @@ namespace Candle.Web.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.InjectApplicationServices();
-            services.AddCustomizedDataStore(Configuration);
+            services.AddCustomizedDataStore();
             services.IntegrateSwagger(Configuration);
+            services.Localization();
             services.JwtSettings(Configuration);
             services.AddCors();
             services.AddControllers()
@@ -36,11 +37,7 @@ namespace Candle.Web.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            
+            app.UseRequestLocalization();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();

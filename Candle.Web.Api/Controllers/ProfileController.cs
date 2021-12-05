@@ -18,10 +18,10 @@ namespace Candle.Web.Api.Controllers
         }
 
         [HttpGet]
-        [Route("GetProfileCounts/{userName}")]
-        public ActionResult<IDataResult<GetProfileInfoDto>> GetProfileCounts(string userName)
+        [Route("GetProfileInfos/{userName}")]
+        public ActionResult<IDataResult<GetProfileInfoDto>> GetProfileInfos(string userName)
         {
-            var counts = _profileService.GetProfileCount(userName);
+            var counts = _profileService.GetProfileInfo(userName);
             return Ok(counts);
         }
     }

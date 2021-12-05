@@ -49,11 +49,12 @@ namespace Candle.Business.Service
                 followerList.Add(new GetFollowerResponseDto 
                 { 
                     Id = item.Id,
+                    FollowerId = item.UserId,
                     FollowerName = item.User.UserName
                 });
             }
 
-            return new SuccessDataResult<List<GetFollowerResponseDto>>(followerList);
+            return new SuccessDataResult<List<GetFollowerResponseDto>>(followerList.OrderBy(x => x.FollowerName).ToList());
         }
 
         public IDataResult<List<GetFollowerResponseDto>> GetFollowingList(string userName)
@@ -65,10 +66,11 @@ namespace Candle.Business.Service
                 followingList.Add(new GetFollowerResponseDto
                 {
                     Id = item.Id,
+                    FollowerId = item.FollowerId,
                     FollowerName = item.UserFollower.UserName
                 });
             }
-            return new SuccessDataResult<List<GetFollowerResponseDto>>(followingList);
+            return new SuccessDataResult<List<GetFollowerResponseDto>>(followingList.OrderBy(x => x.FollowerName).ToList());
         }
 
         public IDataResult<IQueryable<User>> GetNotFollowings(string userName)

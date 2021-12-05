@@ -17,6 +17,8 @@ namespace Candle.Model.DTOs.ResponseDto.PostResponseDto
 
         public DateTime CreateTime { get; set; }
 
+        public string ProfilePhotoPath { get; set; }
+
         public ICollection<TagPostResponseDto> Tags { get; set; }
 
         public ICollection<MediaPostResponseDto> Medias { get; set; }

@@ -11,8 +11,8 @@ namespace Candle.Business.Validation.DtoValidation.RequestDtoValidation.Login
                 .WithMessage("UserId can not be null");
             RuleFor(x => x.Password).NotEmpty().NotNull()
                 .WithMessage("FollowerId can not be null");
-            RuleFor(x => x.Password).Length(8,50)
-                .WithMessage("Password length cannot be less than 8 and greater than 50");
+            RuleFor(x => x.Password).Length(6,50)
+                .WithMessage("Password length cannot be less than 6 and greater than 50");
         }
     }
 }
