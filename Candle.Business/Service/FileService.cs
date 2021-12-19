@@ -1,7 +1,9 @@
-﻿using Candle.Business.Abstract;
+﻿using Candle.Application.System;
+using Candle.Business.Abstract;
 using Candle.Common.Result;
 using Candle.Model.DTOs.ResponseDto.FileResponseDto;
 using Candle.Model.Enums;
+using Candle.Model.Enums.EnumExtensions;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +28,7 @@ namespace Candle.Business.Service
             }
 
             List<UploadFileResponseDto> uploadFileResponse = new();
-            int index = mediaService.GetMediaMaxIndex(userName) > 0 ? mediaService.GetMediaMaxIndex(userName) : 0;
+            int index = mediaService.GetMediaMaxIndex(userName);
             index++;
             string fileExtention = string.Empty;
             string fileName = string.Empty;
@@ -73,7 +75,7 @@ namespace Candle.Business.Service
                             FileName = fileName,
                             Caption = filePathFrontend + fileName,
                             FileSize = file.Length,
-                            MediaType = (short)(file.ContentType.Substring(0,5).Contains("image") ? MediaTypes.Photo : MediaTypes.Video),
+                            MediaType = file.ContentType[..5].Contains("image") ? MediaTypes.Photo.GetValue().ToShort() : MediaTypes.Video.GetValue().ToShort(),
                             Index = index
                         });
 

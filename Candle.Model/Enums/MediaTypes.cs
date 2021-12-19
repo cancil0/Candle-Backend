@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Candle.Model.Enums.EnumExtensions.Attributes;
+using System.ComponentModel;
 
 namespace Candle.Model.Enums
 {
     public enum MediaTypes
     {
-        Photo = 1,
-        Video= 2
+        [Description("Photo"), Value("1")]
+        Photo,
+
+        [Description("Video"), Value("2")]
+        Video
     }
 }

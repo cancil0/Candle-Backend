@@ -11,7 +11,7 @@ namespace Candle.Web.Api.Controllers
     [ApiController]
     public class ProfileController : BaseController
     {
-        IProfileService _profileService;
+        private readonly IProfileService _profileService;
         public ProfileController()
         {
             _profileService = new ProfileService();

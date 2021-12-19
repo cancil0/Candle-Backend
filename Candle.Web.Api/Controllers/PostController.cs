@@ -16,7 +16,7 @@ namespace Candle.Web.Api.Controllers
     [ApiController]
     public class PostController : BaseController
     {
-        IPostService _postService;
+        private readonly IPostService _postService;
         public PostController()
         {
             _postService = new PostService();

@@ -116,7 +116,7 @@ namespace Candle.Web.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("Follow")]
-        public ActionResult<IResult> Follow(FollowerRequestDto followerRequestDto)
+        public ActionResult<IDataResult<Guid>> Follow(FollowerRequestDto followerRequestDto)
         {
             var follow = _followerService.Follow(followerRequestDto);
             return Ok(follow);

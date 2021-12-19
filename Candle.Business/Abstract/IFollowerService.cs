@@ -16,7 +16,7 @@ namespace Candle.Business.Abstract
         IDataResult<IQueryable<User>> GetNotFollowings(string userName);
         IDataResult<List<GetFollowerResponseDto>> GetFollowingList(string userName);
         IDataResult<List<GetFollowerResponseDto>> GetFollowerList(string userName);
-        IResult Follow(FollowerRequestDto followerRequestDto);
+        IDataResult<Guid> Follow(FollowerRequestDto followerRequestDto);
         IResult StopFollowing(FollowerRequestDto followerRequestDto);
         IResult StopFollowingById(Guid id);
         public int GetFollowingCount(string userName);

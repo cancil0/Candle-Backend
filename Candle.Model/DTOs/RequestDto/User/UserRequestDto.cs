@@ -19,6 +19,9 @@ namespace Candle.Model.DTOs.RequestDto.User
         public string UserName { get; set; }
 
         public string Password { get; set; }
+
         public string Gender { get; set; }
+
+        public string ProfileStatus { get; set; }
     }
 }

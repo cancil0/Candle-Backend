@@ -31,6 +31,9 @@ namespace Candle.InfraStructure.Persistence
             modelBuilder.Entity<Comment>()
                 .HasKey(f => new { f.UserId, f.PostId });
 
+            modelBuilder.Entity<Comment>()
+                .HasKey(f => f.Id);
+
             modelBuilder.Entity<Tag>()
                 .HasKey(f => f.PostId);
 
@@ -60,6 +63,9 @@ namespace Candle.InfraStructure.Persistence
 
             modelBuilder.Entity<Follower>()
                 .HasKey(f => f.Id);
+
+            modelBuilder.Entity<ProfileStatusDef>()
+                .HasKey(f => f.Key);
 
             modelBuilder.Entity<Follower>()
                 .HasIndex(f => new { f.UserId, f.FollowerId }).IsUnique();
@@ -115,9 +121,14 @@ namespace Candle.InfraStructure.Persistence
                .HasForeignKey(f => f.PostId);
 
             modelBuilder.Entity<User>()
-            .HasOne(f => f.PinForgotPassword)
-            .WithOne(f => f.User)
-            .HasForeignKey<PinForgotPassword>(f => f.UserId);
+                .HasOne(f => f.PinForgotPassword)
+                .WithOne(f => f.User)
+                .HasForeignKey<PinForgotPassword>(f => f.UserId);
+
+            modelBuilder.Entity<User>()
+                .HasOne(f => f.ProfileStatusDef)
+                .WithMany(f => f.User)
+                .HasForeignKey(f => f.ProfileStatus);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(CandleDbContext).Assembly);
             base.OnModelCreating(modelBuilder);

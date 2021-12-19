@@ -23,5 +23,7 @@ namespace Candle.Business.Abstract
         UserProfileInfoResponseDto GetUserProfileInfo(string userName);
 
         void UpdateProfilePhotoPath(string userName, string path);
+
+        Result CheckUserProfileStatus(CheckUserProfileStatusRequestDto statusRequestDto);
     }
 }

@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Candle.Model.Enums.EnumExtensions.Attributes;
+using System.ComponentModel;
 
 namespace Candle.Model.Enums
 {
     public enum IsActiveKey
     {
-        NotActive = 0,
-        Active = 1
+        [Description("Video"), Value("0")]
+        NotActive,
+
+        [Description("Video"), Value("1")]
+        Active
     }
 }

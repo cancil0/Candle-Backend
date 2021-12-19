@@ -79,13 +79,13 @@ namespace Candle.Business.Service
             return new SuccessDataResult<IQueryable<User>>(result);
         }
 
-        public IResult Follow(FollowerRequestDto followerRequestDto)
+        public IDataResult<Guid> Follow(FollowerRequestDto followerRequestDto)
         {
             var followed = GetFollower(followerRequestDto);
 
             if (followed.Data != null)
             {
-                return new ErrorResult();
+                return new ErrorDataResult<Guid>();
             }
 
             Follower follower = new() 
@@ -96,7 +96,7 @@ namespace Candle.Business.Service
             };
 
             followerDal.Insert(follower);
-            return new SuccessResult();
+            return new SuccessDataResult<Guid>(follower.Id);
         }
 
         public IResult StopFollowing(FollowerRequestDto followerRequestDto)

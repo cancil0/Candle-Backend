@@ -1,4 +1,4 @@
-﻿using Candle.Model.DTOs.ResponseDto.CommentResponseDto;
+﻿using Candle.Model.DTOs.CommentResponseDto.CommentResponseDto;
 using Candle.Model.DTOs.ResponseDto.LikeResponseDto;
 using Candle.Model.DTOs.ResponseDto.MediaResponseDto;
 using Candle.Model.DTOs.ResponseDto.TagResponseDto;
@@ -12,6 +12,8 @@ namespace Candle.Model.DTOs.ResponseDto.PostResponseDto
         public Guid Id { get; set; }
 
         public string UserName { get; set; }
+
+        public Guid UserId { get; set; }
 
         public string Content { get; set; }
 

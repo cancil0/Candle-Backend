@@ -3,6 +3,7 @@ using System;
 using Candle.InfraStructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Candle.InfraStructure.Migrations
 {
     [DbContext(typeof(CandleDbContext))]
-    partial class CandleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211211090508_Nine")]
+    partial class Nine
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -265,20 +267,6 @@ namespace Candle.InfraStructure.Migrations
                     b.ToTable("Post");
                 });
 
-            modelBuilder.Entity("Candle.Model.Entities.ProfileStatusDef", b =>
-                {
-                    b.Property<string>("Key")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Key");
-
-                    b.ToTable("ProfileStatusDef");
-                });
-
             modelBuilder.Entity("Candle.Model.Entities.Tag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -357,9 +345,6 @@ namespace Candle.InfraStructure.Migrations
                     b.Property<string>("ProfilePhotoPath")
                         .HasColumnType("text");
 
-                    b.Property<string>("ProfileStatus")
-                        .HasColumnType("text");
-
                     b.Property<string>("SecondaryEmail")
                         .HasColumnType("text");
 
@@ -387,8 +372,6 @@ namespace Candle.InfraStructure.Migrations
 
                     b.HasIndex("MobilePhone")
                         .IsUnique();
-
-                    b.HasIndex("ProfileStatus");
 
                     b.HasIndex("UserName")
                         .IsUnique();
@@ -514,15 +497,6 @@ namespace Candle.InfraStructure.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("Candle.Model.Entities.User", b =>
-                {
-                    b.HasOne("Candle.Model.Entities.ProfileStatusDef", "ProfileStatusDef")
-                        .WithMany("User")
-                        .HasForeignKey("ProfileStatus");
-
-                    b.Navigation("ProfileStatusDef");
-                });
-
             modelBuilder.Entity("Candle.Model.Entities.Comment", b =>
                 {
                     b.Navigation("Replies");
@@ -537,11 +511,6 @@ namespace Candle.InfraStructure.Migrations
                     b.Navigation("Medias");
 
                     b.Navigation("Tags");
-                });
-
-            modelBuilder.Entity("Candle.Model.Entities.ProfileStatusDef", b =>
-                {
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Candle.Model.Entities.User", b =>

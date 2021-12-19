@@ -29,7 +29,11 @@ namespace Candle.Model.Entities
 
         public string ProfilePhotoPath { get; set; }
 
+        public string ProfileStatus { get; set; }
+
         public PinForgotPassword PinForgotPassword { get; set; }
+
+        public ProfileStatusDef ProfileStatusDef { get; set; }
 
         public virtual ICollection<Comment> Comments { get; set; }
 

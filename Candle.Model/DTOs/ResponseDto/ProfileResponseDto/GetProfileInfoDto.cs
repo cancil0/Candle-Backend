@@ -1,4 +1,6 @@
-﻿namespace Candle.Model.DTOs.ResponseDto.ProfileResponseDto
+﻿using System;
+
+namespace Candle.Model.DTOs.ResponseDto.ProfileResponseDto
 {
     public class GetProfileInfoDto
     {
@@ -11,5 +13,6 @@
         public string ProfilePhotoPath { get; set; }
 
         public string UserNameSurname { get; set; }
+        public Guid UserId { get; set; }
     }
 }

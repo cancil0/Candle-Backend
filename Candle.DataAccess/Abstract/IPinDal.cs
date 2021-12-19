@@ -10,7 +10,7 @@ namespace Candle.DataAccess.Abstract
 
         void AddNewPin(PinForgotPassword pinForgotPassword);
 
-        void GeneratePinMessageFile(User user, string randomNumber);
+        void GeneratePinMessageFile(User user, string randomNumber, GeneratePinFileResourcesDto FileResources);
 
         bool IsPinCorrect(EnterPinForgotPassRequestDto enterPinForgot);
     }

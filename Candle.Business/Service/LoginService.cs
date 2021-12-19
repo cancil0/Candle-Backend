@@ -9,6 +9,7 @@ using Candle.Model.DTOs.RequestDto.Login;
 using Candle.Model.DTOs.RequestDto.User;
 using Candle.Model.Entities;
 using Candle.Model.Enums;
+using Candle.Model.Enums.EnumExtensions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +45,7 @@ namespace Candle.Business.Service
             if (user == null || string.IsNullOrEmpty(userLoginDto.PrivateTokenKey))
                 return new ErrorDataResult<string>();
 
-            if(user.UserStatus == (short)UserStatusKey.NotActive)
+            if(user.UserStatus == UserStatusKey.NotActive.GetValue().ToShort())
                 return new ErrorDataResult<string>(null, "userisbanned");
 
             JwtHandler jwtHandler = new(configuration);
@@ -57,7 +58,7 @@ namespace Candle.Business.Service
             if (!isTokenValid)
                 return new ErrorDataResult<string>();
 
-            if (user.UserStatus == (short)UserStatusKey.NeedConfirm)
+            if (user.UserStatus == UserStatusKey.NeedConfirm.GetValue().ToShort())
                 return new ErrorDataResult<string>(user.UserName, "needconfirm");
 
             return new SuccessDataResult<string>(token, "success");
@@ -83,7 +84,8 @@ namespace Candle.Business.Service
                 Password = encryptedPass,
                 UserName = userRequestDto.UserName,
                 Gender = userRequestDto.Gender,
-                UserStatus = (short)UserStatusKey.NeedConfirm,
+                UserStatus = UserStatusKey.NeedConfirm.GetValue().ToShort(),
+                ProfileStatus = userRequestDto.ProfileStatus,
                 ProfilePhotoPath = userRequestDto.Gender.Equals("M") ? "../../../../assets/defaultProfilePhoto/img_avatar_man.png" 
                                                                      : "../../../../assets/defaultProfilePhoto/img_avatar_woman.png"
             };
@@ -112,7 +114,7 @@ namespace Candle.Business.Service
             string randomNumber = random.Next(100000, 999999).ToString();
 
             pinDal.RemoveLastPin(user.Id);
-            pinDal.GeneratePinMessageFile(user, randomNumber);
+            pinDal.GeneratePinMessageFile(user, randomNumber, forgotPassword.FileResources);
             pinDal.AddNewPin(new() { UserId = user.Id, Pin = randomNumber });
 
             return new SuccessDataResult<string>(user.UserName, "success");

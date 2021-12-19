@@ -9,6 +9,7 @@ using Candle.Model.DTOs.RequestDto.User;
 using Candle.Model.DTOs.ResponseDto.PostResponseDto;
 using Candle.Model.Entities;
 using Candle.Model.Enums;
+using Candle.Model.Enums.EnumExtensions;
 using LinqKit;
 using System;
 using System.Linq;
@@ -18,16 +19,18 @@ namespace Candle.Business.Service
     public class UserService : IUserService
     {
         private readonly IUserDal userDal;
+        private readonly IFollowerDal followerDal;
         private readonly CandleDbContext dbContext;
         public UserService()
         {
             dbContext = new CandleDbContext();
             userDal = new UserDalService(dbContext);
+            followerDal = new FollowerDalService(dbContext);
         }
 
         public IDataResult<IQueryable<User>> GetAll()
         {
-            var result = userDal.GetAll().Where(x => x.UserStatus == (short)UserStatusKey.Active);
+            var result = userDal.GetAll().Where(x => x.UserStatus == UserStatusKey.Active.GetValue().ToShort());
             return new SuccessDataResult<IQueryable<User>>(result);
         }
 
@@ -35,7 +38,7 @@ namespace Candle.Business.Service
         {
             var user = userDal.GetbyId(Id);
 
-            if (user == null || user.IsActive != (short)IsActiveKey.Active)
+            if (user == null || user.IsActive != IsActiveKey.Active.GetValue().ToShort())
             {
                 return new ErrorDataResult<User>(user);
             }
@@ -73,6 +76,7 @@ namespace Candle.Business.Service
             user.Gender = userRequest.Gender;
             user.SecondaryEmail = userRequest.SecondaryEmail;
             user.UserName = userRequest.UserName;
+            user.ProfileStatus = userRequest.ProfileStatus;
 
             userDal.Update(user);
             return new SuccessResult();
@@ -105,22 +109,22 @@ namespace Candle.Business.Service
         {
             var user = userDal.Get(x => x.UserName == userName);
 
-            if (user == null || user.IsActive != (short)IsActiveKey.Active)
+            if (user == null || user.IsActive != IsActiveKey.Active.GetValue().ToShort())
             {
                 return new ErrorResult("User not found");
             }
 
-            if (user.UserStatus == (short)UserStatusKey.Active)
+            if (user.UserStatus == UserStatusKey.Active.GetValue().ToShort())
             {
                 return new ErrorResult("User status already activated");
             }
 
-            if (user.UserStatus == (short)UserStatusKey.NotActive)
+            if (user.UserStatus == UserStatusKey.NotActive.GetValue().ToShort())
             {
                 return new ErrorResult("This user can not activated");
             }
 
-            user.UserStatus = (short)UserStatusKey.Active;
+            user.UserStatus = UserStatusKey.Active.GetValue().ToShort();
             userDal.Update(user);
 
             return new SuccessResult();
@@ -132,6 +136,7 @@ namespace Candle.Business.Service
 
             UserProfileInfoResponseDto userProfileInfo = new()
             {
+                UserId = user.Id,
                 ProfilePhotoPath = user.ProfilePhotoPath,
                 UserNameSurname = string.Format("{0} {1}", user.Name, user.SurName)
             };
@@ -148,6 +153,35 @@ namespace Candle.Business.Service
                 user.ProfilePhotoPath = path;
                 userDal.Update(user);
             }
+        }
+
+        public Result CheckUserProfileStatus(CheckUserProfileStatusRequestDto statusRequestDto)
+        {
+            if(statusRequestDto.UserName != statusRequestDto.ProfileOwnerUserName)
+            {
+                var user = userDal.Get(x => x.UserName == statusRequestDto.UserName);
+
+                if (user.ProfileStatus != ProfileStatusKey.Everyone.GetValue())
+                {
+                    if (user.ProfileStatus == ProfileStatusKey.Confidential.GetValue())
+                    {
+                        return new ErrorResult(ProfileStatusKey.Confidential.GetDescription());
+                    }
+
+                    if (user.ProfileStatus == ProfileStatusKey.Follower.GetValue())
+                    {
+                        IQueryable<User> followers = followerDal.GetFollowers(statusRequestDto.UserName);
+
+                        if (!followers.Any(x => x.UserName == statusRequestDto.ProfileOwnerUserName))
+                        {
+                            return new ErrorResult(ProfileStatusKey.Follower.GetDescription());
+                        }
+
+                    }
+                }
+            }
+
+            return new SuccessResult();
         }
     }
 }

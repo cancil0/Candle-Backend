@@ -26,7 +26,8 @@ namespace Candle.Business.Service
                 Follower = followerService.GetFollowerCount(userName),
                 Following = followerService.GetFollowingCount(userName),
                 ProfilePhotoPath = userProfileInfo.ProfilePhotoPath,
-                UserNameSurname = userProfileInfo.UserNameSurname
+                UserNameSurname = userProfileInfo.UserNameSurname,
+                UserId = userProfileInfo.UserId
             };
 
             return new SuccessDataResult<GetProfileInfoDto>(getProfileCount);

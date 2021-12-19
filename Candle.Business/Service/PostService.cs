@@ -3,13 +3,16 @@ using Candle.Common.Result;
 using Candle.DataAccess.Abstract;
 using Candle.DataAccess.Service;
 using Candle.InfraStructure.Persistence;
+using Candle.Model.DTOs.CommentResponseDto.CommentResponseDto;
 using Candle.Model.DTOs.RequestDto.Post;
-using Candle.Model.DTOs.ResponseDto.CommentResponseDto;
+using Candle.Model.DTOs.RequestDto.User;
 using Candle.Model.DTOs.ResponseDto.LikeResponseDto;
 using Candle.Model.DTOs.ResponseDto.MediaResponseDto;
 using Candle.Model.DTOs.ResponseDto.PostResponseDto;
 using Candle.Model.DTOs.ResponseDto.TagResponseDto;
 using Candle.Model.Entities;
+using Candle.Model.Enums;
+using Candle.Model.Enums.EnumExtensions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -22,6 +25,7 @@ namespace Candle.Business.Service
         private readonly IPostDal postDal;
         private readonly IUserDal userDal;
         private readonly IFollowerDal followerDal;
+        private readonly IUserService userService;
         private readonly CandleDbContext dbContext;
         public PostService()
         {
@@ -30,6 +34,7 @@ namespace Candle.Business.Service
             postDal = new PostDalService(dbContext);
             userDal = new UserDalService(dbContext);
             followerDal = new FollowerDalService(dbContext);
+            userService = new UserService();
         }
 
         public IDataResult<List<GetPostResponseDto>> GetMainPost(GetPostByUserNameDto getPostByUserNameDto)
@@ -45,6 +50,7 @@ namespace Candle.Business.Service
                                                                 {
                                                                     Id = p.Id,
                                                                     UserName = p.User.UserName,
+                                                                    UserId = p.User.Id,
                                                                     Content = p.Content,
                                                                     CreateTime = p.CreateTime,
                                                                     ProfilePhotoPath = p.User.ProfilePhotoPath,
@@ -55,9 +61,13 @@ namespace Candle.Business.Service
                                                                     }).ToList(),
                                                                     Comments = p.Comments.Select(x => new CommentPostResponseDto
                                                                     {
+                                                                        CommentId = x.Id,
+                                                                        ParentCommentId = x.ParentCommentId,
+                                                                        UserName = x.User.UserName,
+                                                                        UserProfilePhoto = x.User.ProfilePhotoPath,
                                                                         CommentText = x.CommentText,
-                                                                        UserName = x.User.UserName
-                                                                    }).ToList(),
+                                                                        Time = x.CreateTime
+                                                                    }).OrderBy(x => x.Time).ToList(),
                                                                     Medias = p.Medias.Select(x => new MediaPostResponseDto
                                                                     {
                                                                         Caption = x.Caption,
@@ -74,7 +84,7 @@ namespace Candle.Business.Service
             var notFollowings = followerDal.GetNotFollowing(getPostByUserNameDto.UserName).ToList();
             int take = getPostByUserNameDto.TakeCount;
             int skip = (0 + getPostByUserNameDto.ScrollCount) * getPostByUserNameDto.TakeCount;
-            List<GetPostResponseDto> result = postDal.GetMany(x => notFollowings.Contains(x.User),
+            List<GetPostResponseDto> result = postDal.GetMany(x => notFollowings.Contains(x.User) && x.User.ProfileStatus == ProfileStatusKey.Everyone.GetValue(),
                                                                 x => x.Medias,
                                                                 x => x.Comments,
                                                                 x => x.Likes,
@@ -82,6 +92,7 @@ namespace Candle.Business.Service
                                                                 {
                                                                     Id = p.Id,
                                                                     UserName = p.User.UserName,
+                                                                    UserId = p.User.Id,
                                                                     Content = p.Content,
                                                                     CreateTime = p.CreateTime,
                                                                     ProfilePhotoPath = p.User.ProfilePhotoPath,
@@ -92,9 +103,13 @@ namespace Candle.Business.Service
                                                                     }).ToList(),
                                                                     Comments = p.Comments.Select(x => new CommentPostResponseDto
                                                                     {
+                                                                        CommentId = x.Id,
+                                                                        ParentCommentId = x.ParentCommentId,
+                                                                        UserName = x.User.UserName,
+                                                                        UserProfilePhoto = x.User.ProfilePhotoPath,
                                                                         CommentText = x.CommentText,
-                                                                        UserName = x.User.UserName
-                                                                    }).ToList(),
+                                                                        Time = x.CreateTime
+                                                                    }).OrderBy(x => x.Time).ToList(),
                                                                     Medias = p.Medias.Select(x => new MediaPostResponseDto
                                                                     {
                                                                         Caption = x.Caption,
@@ -126,6 +141,7 @@ namespace Candle.Business.Service
             {
                 Id = post.Id,
                 UserName = post.User.UserName,
+                UserId = post.User.Id,
                 Content = post.Content,
                 CreateTime = post.CreateTime,
                 ProfilePhotoPath = post.User.ProfilePhotoPath,
@@ -136,9 +152,13 @@ namespace Candle.Business.Service
                 }).ToList(),
                 Comments = post.Comments.Select(x => new CommentPostResponseDto
                 {
+                    CommentId = x.Id,
+                    ParentCommentId = x.ParentCommentId,
+                    UserName = x.User.UserName,
+                    UserProfilePhoto = x.User.ProfilePhotoPath,
                     CommentText = x.CommentText,
-                    UserName = x.User.UserName
-                }).ToList(),
+                    Time = x.CreateTime
+                }).OrderBy(x => x.Time).ToList(),
                 Medias = post.Medias.Select(x => new MediaPostResponseDto
                 {
                     Caption = x.Caption,
@@ -153,6 +173,19 @@ namespace Candle.Business.Service
 
         public IDataResult<IQueryable<GetPostResponseDto>> GetByUserName(GetPostByUserNameDto getPostByUserNameDto)
         {
+            var profileStatusRequest = new CheckUserProfileStatusRequestDto
+            {
+                UserName = getPostByUserNameDto.UserName,
+                ProfileOwnerUserName = getPostByUserNameDto.LoggedInUserName
+            };
+
+            Result resultProfileStatus = userService.CheckUserProfileStatus(profileStatusRequest);
+
+            if(!resultProfileStatus.IsSuccess)
+            {
+                return new ErrorDataResult<IQueryable<GetPostResponseDto>>(null, resultProfileStatus.Message);
+            }
+                
             int take = getPostByUserNameDto.TakeCount;
             int skip = (0 + getPostByUserNameDto.ScrollCount) * getPostByUserNameDto.TakeCount;
             IQueryable<GetPostResponseDto> result = postDal.GetMany(x => x.User.UserName == getPostByUserNameDto.UserName,
@@ -163,6 +196,7 @@ namespace Candle.Business.Service
                                                                                 {
                                                                                     Id = p.Id,
                                                                                     UserName = p.User.UserName,
+                                                                                    UserId = p.User.Id,
                                                                                     Content = p.Content,
                                                                                     CreateTime = p.CreateTime,
                                                                                     ProfilePhotoPath = p.User.ProfilePhotoPath,
@@ -173,9 +207,13 @@ namespace Candle.Business.Service
                                                                                     }).ToList(),
                                                                                     Comments = p.Comments.Select(x => new CommentPostResponseDto
                                                                                     {
+                                                                                        CommentId = x.Id,
+                                                                                        ParentCommentId = x.ParentCommentId,
+                                                                                        UserName = x.User.UserName,
+                                                                                        UserProfilePhoto = x.User.ProfilePhotoPath,
                                                                                         CommentText = x.CommentText,
-                                                                                        UserName = x.User.UserName
-                                                                                    }).ToList(),
+                                                                                        Time = x.CreateTime
+                                                                                    }).OrderBy(x => x.Time).ToList(),
                                                                                     Medias = p.Medias.Select(x => new MediaPostResponseDto
                                                                                     {
                                                                                         Caption = x.Caption,
@@ -215,11 +253,6 @@ namespace Candle.Business.Service
             postDal.Insert(post);
 
             return new SuccessDataResult<Post>(post);
-        }
-
-        public IResult UpdatePost()
-        {
-            return new SuccessResult();
         }
 
         public IResult DeletePost(Guid Id)

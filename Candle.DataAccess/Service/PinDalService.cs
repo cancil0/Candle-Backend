@@ -12,7 +12,7 @@ namespace Candle.DataAccess.Service
     public class PinDalService : IPinDal
     {
         private readonly CandleDbContext dbContext;
-        private DbSet<PinForgotPassword> entities;
+        private readonly DbSet<PinForgotPassword> entities;
         public PinDalService(CandleDbContext dbContext)
         {
             this.dbContext = dbContext;
@@ -36,17 +36,17 @@ namespace Candle.DataAccess.Service
             dbContext.SaveChanges();
         }
 
-        public void GeneratePinMessageFile(User user, string randomNumber)
+        public void GeneratePinMessageFile(User user, string randomNumber, GeneratePinFileResourcesDto fileResources)
         {
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             File.Create(Path.Combine(docPath, user.UserName + "-Pin.txt")).Close();
             using StreamWriter outputFile = new(Path.Combine(docPath, user.UserName + "-Pin.txt"), true);
-            outputFile.WriteLine("UserName:  " + user.UserName);
-            outputFile.WriteLine("Pin:  " + randomNumber);
-            outputFile.WriteLine("Date:  " + DateTime.Now.ToString("dd.MM.yyyy"));
-            outputFile.WriteLine("Time:  " + DateTime.Now.ToString("HH:mm"));
-            outputFile.WriteLine("You have 60 seconds to use this pin");
-            outputFile.WriteLine("Please do not share your pin with anybody");
+            outputFile.WriteLine(string.Format("{0}:  {1}", fileResources.UserName, user.UserName));
+            outputFile.WriteLine(string.Format("Pin: {0}", randomNumber));
+            outputFile.WriteLine(string.Format("{0}:  {1}", fileResources.Date, DateTime.Now.ToString("dd.MM.yyyy")));
+            outputFile.WriteLine(string.Format("{0}:  {1}", fileResources.Time, DateTime.Now.ToString("HH:mm")));
+            outputFile.WriteLine(fileResources.SecondsLine);
+            outputFile.WriteLine(fileResources.CautionLine);
         }
 
         public bool IsPinCorrect(EnterPinForgotPassRequestDto enterPinForgot)
@@ -55,7 +55,7 @@ namespace Candle.DataAccess.Service
                                                 where a.User.UserName == enterPinForgot.UserName && a.Pin == enterPinForgot.Pin
                                                 select a).SingleOrDefault();
 
-            return userPinRequest != null ? true : false;
+            return userPinRequest != null;
         }
     }
 
