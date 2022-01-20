@@ -5,6 +5,7 @@ using Candle.Common.Result;
 using Candle.Model.DTOs.ResponseDto.FileResponseDto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
 namespace Candle.Web.Api.Controllers
@@ -14,9 +15,9 @@ namespace Candle.Web.Api.Controllers
     public class FileController : BaseController
     {
         private readonly IFileService _fileService;
-        public FileController()
+        public FileController(IConfiguration configuration)
         {
-            _fileService = new FileService();
+            _fileService = new FileService(configuration);
         }
 
         [HttpPost]

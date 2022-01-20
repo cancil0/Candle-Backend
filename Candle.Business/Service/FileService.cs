@@ -5,6 +5,7 @@ using Candle.Model.DTOs.ResponseDto.FileResponseDto;
 using Candle.Model.Enums;
 using Candle.Model.Enums.EnumExtensions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.IO;
 
@@ -14,10 +15,14 @@ namespace Candle.Business.Service
     {
         private readonly IMediaService mediaService;
         private readonly IUserService userService;
-        public FileService()
+        private readonly IConfiguration configuration;
+        private readonly IConfigurationSection photoFilePath;
+        public FileService(IConfiguration configuration)
         {
             mediaService = new MediaService();
             userService = new UserService();
+            this.configuration = configuration;
+            this.photoFilePath = configuration.GetSection("FilePath");
         }
 
         public IDataResult<List<UploadFileResponseDto>> UploadFile(List<IFormFile> files, string userName)
@@ -32,7 +37,7 @@ namespace Candle.Business.Service
             index++;
             string fileExtention = string.Empty;
             string fileName = string.Empty;
-            var filePath = string.Format("C:\\Projeler\\Candle\\Candle-Frontend\\src\\assets\\userMedias\\{0}", userName);
+            var filePath = string.Format("{0}{1}", photoFilePath.GetSection("postPhotoPathProd").Value, userName);
             var filePathFrontend = string.Format("../../../../assets/userMedias/{0}/", userName);
             if (!File.Exists(filePath))
             {
@@ -95,7 +100,7 @@ namespace Candle.Business.Service
 
             string fileExtention = string.Empty;
             
-            var filePath = string.Format("C:\\Projeler\\Candle\\Candle-Frontend\\src\\assets\\userMedias\\{0}", userName);
+            var filePath = string.Format("{0}{1}", photoFilePath.GetSection("postPhotoPathProd").Value, userName);
 
             if (!File.Exists(filePath))
             {
